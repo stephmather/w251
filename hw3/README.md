@@ -6,6 +6,7 @@ Repository that contais homework 3<https://github.com/MIDS-scaling-up/v2/tree/ma
 
 Cloud output of live faces is available at http://s3.us-south.cloud-object-storage.appdomain.cloud/cloud-object-storage-smather-hw3-cos-standard-hq1
 
+**notes.txt** conatians detatils of container configuration.
 
 The following architechture was used
 detector > mosquitto > forwarder > mosquitto > processor > objectstorage
