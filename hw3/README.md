@@ -2,11 +2,11 @@
 MIDS w251
 stephanie.mather@berkeley.edu
 
-Repository that contais homework 3<https://github.com/MIDS-scaling-up/v2/tree/master/week03/hw> submissions for w251, January 2020.
+Repository that contais homework 3 <https://github.com/MIDS-scaling-up/v2/tree/master/week03/hw> submissions for w251, January 2020.
 
 Cloud output of live faces is available at http://s3.us-south.cloud-object-storage.appdomain.cloud/cloud-object-storage-smather-hw3-cos-standard-hq1
 
-**notes.txt** conatians detatils of container configuration.
+**notes.txt** contains detatils of container setup and configuration.
 
 The following architechture was used
 detector > mosquitto > forwarder > mosquitto > processor > objectstorage
