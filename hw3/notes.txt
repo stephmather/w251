@@ -7,6 +7,7 @@
 ## Create a bridge: (internal network so containers can talk to each other)
 docker network create --driver bridge hw03
 
+
 ### Create mqtt broker
 #Create an alpine linux - based mosquitto container:
 docker run --name mosquitto --network hw03 -p 1883:1883 -ti alpine sh
@@ -19,7 +20,6 @@ apk update && apk add mosquitto
 # Press Control-P Control-Q to disconnect from the container
 
 
-
 ##Create ubuntu (Face Detector)
 #give access to camera
 xhost +
@@ -30,13 +30,7 @@ docker run -v /usr/share/opencv4/haarcascades:/mnt/opencv --privileged -e DISPLA
 #update
 apt-get update
 
-#Install mosquitto client tools (bit that can speak to mosquitto)
-apt install -y mosquitto-clients
-
-#Send a message
-mosquitto_pub -h mosquitto -t Steph -m Hi
-
-#install OpenCV
+#install OpenCV and mosquitto client tools (bit that can speak to mosquitto)
 apt-get -y install build-essential
 apt-get -y install cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev
 apt install -y python -y python-opencv python-pip vim-tiny mosquitto-clients libopencv-dev
@@ -118,7 +112,6 @@ s3fs bucketname /mnt/hw3 -o passwd_file=$HOME/.cos_creds -o sigv2 -o use_path_re
 apt install python-pip
 pip install --upgrade s3cmd
 
-
 s3cmd --configure 
 apt-get install vim
 
@@ -141,5 +134,5 @@ vi facesaver.py
 pip install paho-mqtt
 pip install numpy
 
-3run python and send faces to the cloud
+#run python and send faces to the cloud
 python facesaver.py
