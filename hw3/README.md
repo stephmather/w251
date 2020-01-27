@@ -10,16 +10,16 @@ Cloud output of live faces is available at http://s3.us-south.cloud-object-stora
 The following architechture was used
 detector > mosquitto > forwarder > mosquitto > processor > objectstorage
 
-#Jetson TX2
-detector: A ubuntu conatiner on Jetson TX2 that uses openCV to recognise and extract faces from local usb camera feed. If a face is in frame, it is extracted and published via mqtt protocol to the forwarder using facedection.py 
+## Jetson TX2
+detector: A ubuntu conatiner on Jetson TX2 that uses openCV to recognise and extract faces from local usb camera feed. If a face is in frame, it is extracted and published via mqtt protocol to the forwarder using ***facedection.py*** 
 mosquitto: The first mosquitto container is the mqtt broker on the Jetson TX2. It is an alpine conatiner running mosquitto.
-forwarder: An alpine conatiner running paho-mqtt that subscribes to the faces published by the detector and forwards them onto the cloud virtual server using forwardtoCVSI.py
+forwarder: An alpine conatiner running paho-mqtt that subscribes to the faces published by the detector and forwards them onto the cloud virtual server using ***forwardtoCVSI.py***
 
-#Cloud VSI
+## Cloud VSI
 The could VSI is access trhough the w251 jumpbox and has two containers.
 mosquitto: A alpine container running mosquitto that is the mqtt broker on the cloud VSI. It receives the message from the Jetson TX2 on port 1883.
-processor: An ubuntu container that receives the faces via the mqtt broker and forwards them to the Cloud Object Storage
+processor: An ubuntu container that receives the faces via the mqtt broker and forwards them to the Cloud Object Storage using ***facesaver.py***
 
-#Cloud Object Storage
+## Cloud Object Storage
 A cloud object storage location was created under the users IBMCloud account to provide permenant storage for the face images. This could then be utilised fro processing at a later date. The cloud output of live faces is available at <http://s3.us-south.cloud-object-storage.appdomain.cloud/cloud-object-storage-smather-hw3-cos-standard-hq1>
 
