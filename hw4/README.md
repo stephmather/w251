@@ -107,10 +107,10 @@ net.makeLayers(layer_defs);
 Batch size is the number of samples a neural network sees before the model is updated. The default batch size for ConvnetJS is 20. This was increased to 100. Generally you would expect a model to converge faster with a larger batch size. This was not evident in the MNIST cnn. The model converged slower and was less accurate for the same number of samples. It must be noted however that the number of epochs (the times the model aws updated) was different between the two. After 40000 samples the accuracy between the two models was similar.
 
 *Accuracy convergence with batch size of 20*
-![Batch Size 20 Image](batch20.jpeg)
+![Batch Size 20 Image](batch20.jpg)
 
 *Accuracy convergence with batch size of 100*
-![Batch Size 100 Image](batch100.jpeg)
+![Batch Size 100 Image](batch100.jpg)
 
 
 * What is the best accuracy you can achieve? Are you over 99%? 99.5%?
