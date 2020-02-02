@@ -133,7 +133,7 @@ trainer = new convnetjs.SGDTrainer(net, {method:'adadelta', batch_size:20, l2_de
 ```
 
 
-A more complex CNN based on the suggested architecture from https://machinelearningmastery.com/how-to-develop-a-convolutional-neural-network-from-scratch-for-mnist-handwritten-digit-classification/ was attempted. The training accuracy reached 0.9 at ~3000 samples but was very slow to train as the forward time per example was 25-30sec. Training accuracy reached 0.96-1 at 12000 samples. Validation accuracy moved between 0.92-0.96 by 15000 samples. This is still not dissimilar to the original model's accuracy.
+A more complex CNN based on the suggested architecture from https://machinelearningmastery.com/how-to-develop-a-convolutional-neural-network-from-scratch-for-mnist-handwritten-digit-classification/ was attempted. The training accuracy reached 0.9 at ~3000 samples but was very slow to train as the forward time per example was 25-30sec. Training accuracy reached 0.96-1 at 12000 samples. Validation accuracy moved between 0.92-0.96 by 15000 samples. This is still not dissimilar to the original model's accuracy. By 25000 examples, the accuracy was 0.95-0.99 for the validation set.
 ```
 layer_defs = [];
 layer_defs.push({type:'input', out_sx:24, out_sy:24, out_depth:1});
@@ -160,70 +160,4 @@ Kaggle are currently hosting their [second competition](https://www.kaggle.com/c
 We shall be using this dataset to benchmark a number of ML models. 
 *Disclaimer: the dataset used contains text that may be considered profane, vulgar, or offensive.*
 
-##### a. Running on your Jetson
-Your Jetson is quite powerful; let's start a keras / tensorflow - enabled jupyter notebook on it:
-```
-docker run --rm --privileged -p 8888:8888 -d  w251/tensorflow_hw04:dev-tx2-4.3_b132
-# once you run this command, it will print the id of the container, e.g.
-# root@dima-desktop:~/v2/backup/keras# docker run --rm --privileged -p 8888:8888 -d  w251/tensorflow_hw04:dev-tx2-4.3_b132 
-7d783a4b0feb89fe91072c0d6934a000471fa101cf9e5b6c09b4b8d881291903
-
-# Now, get the token from docker logs:
-root@dima-desktop:~/v2/backup/keras# docker logs 7d783a4b0feb89fe91072c0d6934a000471fa101cf9e5b6c09b4b8d881291903
-[I 16:11:29.070 NotebookApp] Writing notebook server cookie secret to /root/.local/share/jupyter/runtime/notebook_cookie_secret
-[I 16:11:30.208 NotebookApp] Serving notebooks from local directory: /notebooks
-[I 16:11:30.208 NotebookApp] The Jupyter Notebook is running at:
-[I 16:11:30.208 NotebookApp] http://7d783a4b0feb:8888/?token=0cebf472b557f2e871de6be4e0717ff35cdd30b013b0d7e5
-[I 16:11:30.209 NotebookApp]  or http://127.0.0.1:8888/?token=0cebf472b557f2e871de6be4e0717ff35cdd30b013b0d7e5
-[I 16:11:30.209 NotebookApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation)
-```
-Now, point your browser to http://yourjetsonip:8888?token=yourtoken
-
-##### b. Running in the Cloud
-Set up a CPU based VM to run your models. We shall use sparse matrices which are better suited to CPU than GPU. 
-I set the VM up like below, you may need to change the `datacenter` and `domain`.
-```
-ibmcloud sl vs create --datacenter=lon06 --hostname=hw04cpu --domain=darragh.com --os=UBUNTU_16_64 --flavor C1_8X8X100 --billing=hourly --san --disk=100 --disk=2000 --network 1000  --key=1418191
-```
-As before check the VM is created with `ibmcloud sl vs list`  
-Login like `ssh -i /home/darragh/.ssh/id_rsa 158.176.93.70 -l root` or `ssh root@158.176.93.70`. You may need to wait a couple of minutes before logging in for the VM to br created. 
-
-Once logged into the VM as `root` user, **Install docker**:
-```
-# Validate these at https://docs.docker.com/install/linux/docker-ce/ubuntu/
-apt-get update
-apt install apt-transport-https ca-certificates 
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic test" 
-apt update 
-apt install docker-ce
-# Validated 09/14/19 - Darragh
-# Test if docker hello world is working
-docker run hello-world
-```
-
-Now we pull the image and start our jupyter notebook. 
-```
-docker run --rm -it -p 8888:8888 w251/tensorflow_hw04:latest
-```
-
-You will have an output of the location of the book running line below
-```
-[I 11:47:41.840 NotebookApp] The Jupyter Notebook is running at:
-[I 11:47:41.841 NotebookApp] http://(5ebf32ea4e17 or 127.0.0.1):8888/?token=ffbb6d6b3a9b2e24fb8e0cc7eb8eb0657e1f58fa5595c5d4
-```
-Replace the domain name of the URL with your servers, public IP. For example for the above output I would go to URL. 
-```
-http://158.176.93.70:8888/?token=ffbb6d6b3a9b2e24fb8e0cc7eb8eb0657e1f58fa5595c5d4
-```
-Now open the notebook and run. And fill in the codes blocks marked for filling in and monitor your AUC. 
-For the Logistic regression model you should be getting circa `0.88` AUC and `0.93` or more for the MLP. 
-
-#### Submission:
-Please submit answers to #2, and a html download of your completed Jupyter notebook. A link to a github repo is a great way to submit.
- 
-
-PLEASE CANCEL YOUR VM ONCE YOU ARE DONE!!!
-
-## Note on cloud usage
-![Soflayer](../../softlayer.png?raw=true "Title")
+**Submission** *See w251_homework04.ipynb and w251_homework04.html*
