@@ -5,7 +5,7 @@ Stephanie Mather
 The idea of this homework is to serve as an introduction to [TensorFlow](https://www.tensorflow.org/).  TensorFlow 2 has just been GA'ed - and it is based on [Keras](https://keras.io/), which you encountered in Session 4 and (hope you agree) is much easier to use. 
 
 * Start the tf2 container: `docker run --privileged --rm -p 8888:8888 -d w251/keras:dev-tx2-4.3_b132`
-* As we did before, find out associated token - e.g. note the container id and then ussue `docker logs <container_id>` and find the token.  Use it to connect to your tx2 via browser on port 8888
+* As we did before, find out associated token - e.g. note the container id and then issue `docker logs <container_id>` and find the token.  Use it to connect to your tx2 via browser on port 8888
 * Glance through the [TF2 beginner lab](https://www.tensorflow.org/tutorials/quickstart/beginner). Download this notebook from the TF hub and upload it to your TX2 container. Run it to completion.
 * What's the structure of the network that's being used for classification? How good is it? Based on what you learned in homework 4, can you beat it? Hint: use something like [this](https://github.com/dragen1860/TensorFlow-2.x-Tutorials/tree/master/01-TF2.0-Overview) if you need an inspiration.
 
@@ -127,11 +127,11 @@ input_height = 299
 1. Please research and explain the differences between MobileNet and GoogleNet (Inception) architectures.*GoogLeNet  was the first version of the 'inception' architecture. Inception was a leap forward in the architecture of deep learning when moved away from the user defining all the specific of each layer (and thus relying on multiple training runs to optimise the model) and instead performs multiple different transformations at the same input layer in parallel and lets the model choose which one is the most useful. The large amounts of comuptations this could result in is reduced by using 1x1 convultions to induce dimensionality reduction. More simply, GoogLeNet is an image classification pretrained CNN with 22 layers on either the ImageNet or Places365 data sets (Places365 classifies images into 365 different place categories, such as field, park, runway, and lobby). Xception is powering Google's MobileNet application which is a mobile platform based image classifier and is short hand for 'extreme inception'. Xception uses the concept on Inception but it then does a spacewise convultion, taking into account both the positional data of the features as well as the features themselves. It looks for correlations across a 2D space first, followed by looking for correlations across a 1D space. MobileNet is a particular accuracy/resource tradeoff that uses the gains found in the Xception architechure to create a light weight CNN that can run on mobile platforms.*
 1. In your own words, what is a bottleneck? *A bottleneck is a layer that forces the neural network to concentrate feature representation by having less neurons than both the layers above and below it. By limiting the space available to record feature information they can help the model's ability to generalise as well as reducing computation.*
 1. How is a bottleneck different from the concept of layer freezing? Bottlenecks force the network to be able to generalise to new samples for the same classification set. Freezing of layers and retraining is typically used for transfer learning. the first few layers of the pre-trained network are kept (through freezing) and the later layers are allowed to be modified by the new training set. This keeps the information that is common to all image processing (such as edges and surves) but allows new features to be discovered to match the classification problem at hand.*
-1. In the TF1 lab, you trained the last layer (all the previous layers retain their already-trained state). Explain how the lab used the previous layers (where did they come from? how were they used in the process?) *
-
+1. In the TF1 lab, you trained the last layer (all the previous layers retain their already-trained state). Explain how the lab used the previous layers (where did they come from? how were they used in the process?) *The CNN was sourced from MobileNet. The previous layers were trained on the ImageNet dataset. It was first published by Mark Sandler, Andrew Howard, Menglong Zhu, Andrey Zhmoginov, Liang-Chieh Chen: "Inverted Residuals and Linear Bottlenecks: Mobile Networks for Classification, Detection and Segmentation", 2018. For the first, full MobileNet model, the entire previous model was used. Thiis was then used on the Grace Hopper photo. The MobileNet classified the picture as military uniform, which was one of the classifications in the ImageNet training set. Later on in lab a headless model was used. This was a MobileNet model that had the last classifgication layer removed. A classifcation layer was added and then the Flowers data set was used to train the model. All the previous layers were kept, i.e. the features outputed by the CNN weret eh same as the previous full model, except they were passed through to a different classification layer. Note: it is not recommended to remove Freezing from the majority of the MobileNet layers. The model was trained on a huge data set compared tot he flowers dataset and attempting to retrain is likeley to loose more information that it gains. If additional tuning is required, unfreezing of some layers, but not all may be the solution.
 1. How does a low `--learning_rate` (step 7 of TF1) value (like 0.005) affect the precision? How much longer does training take?
 
-Slowere 
+The speed for 0.5 was quite slow but 0.005 was very slow. Training went for a few minutes to 15min+. Scripts used are below. Precision was slightly increased with the slower learning rate for the validation set, but not by much. Precision for the training set was higher for 0.0005 learning rate. Script:
+```python
 python3 -m scripts.retrain \
   --bottleneck_dir=tf_files/bottlenecks \
   --how_many_training_steps=500 \
@@ -152,8 +152,12 @@ python3 -m scripts.retrain \
   --architecture="${ARCHITECTURE}" \
   --image_dir=tf_files/flower_photos \
   --learning_rate=0.005
-1. How about a `--learning_rate` (step 7 of TF1) of 1.0? Is the precision still good enough to produce a usable graph?
+```
 
+
+1. How about a `--learning_rate` (step 7 of TF1) of 1.0? Is the precision still good enough to produce a usable graph?
+The use of a high learning rate of 1 made the training of the model much quicker but there was a loss of accuracy. The accuracy was still usable - see results below.
+```python
 python3 -m scripts.retrain \
   --bottleneck_dir=tf_files/bottlenecks \
   --model_dir=tf_files/models/ \
@@ -163,6 +167,10 @@ python3 -m scripts.retrain \
   --architecture="${ARCHITECTURE}" \
   --image_dir=tf_files/flower_photos \
   --learning_rate=1
+```
+*Training results for 1, 0.5 and 0.005 learning rates*
+![Training Results TF1](TF_for_poets.jpg) 
+ 
 1. For step 8, you can use any images you like. Pictures of food, people, or animals work well. You can even use [ImageNet](http://www.image-net.org/) images. How accurate was your model? Were you able to train it using a few images, or did you need a lot?
 1. Run the TF1 script on the CPU (see instructions above) How does the training time compare to the default network training (section 4)?  Why?
 1. Try the training again, but this time do `export ARCHITECTURE="inception_v3"` Are CPU and GPU training times different?
