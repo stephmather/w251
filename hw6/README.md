@@ -57,3 +57,76 @@ After you run this you will get an output like below. Go into your book, replaci
 	[I 18:46:45.371 NotebookApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
 
 ```
+
+## Runtimes
+
+The v100 was significantly faster than the p100 for training the model, but the p100 had marginally faster performance for the tokenizer. The slower performance for the v100 for the tokenizer may be a function of time of day the notebook was run and the latency on the network. There is significant distance from my current location to the nearest data centre in Sydney Australia. The increased speed and core number from the v100 become significant for the higher level tasks, taking less than half the runtime to complete 2_epochs.
+
+It is interesting to note that no increase in accuracy came from running the BERT model through 2 epochs instead of 1, instead it actually fell slightly for the v100. But, the change in accuracy between the 1 and 2 epoch models is too small to be considered significant. The accuracy between the v100 and p100 models is almost identical, with the p100 performing slighlty better. This reflects the similarities in hardware. v100 is a newer, faster model of the p100 with the addition of 640 Tensor Cores. This allows the v100 to process the model faster than you would expect from the additional hardware specs (3584 CUDA cores versus 5120 & 1.126GHz versus 1.53 GHz).
+
+
+The tokenizer:
+v100:
+```
+loaded 1500000 records
+33724
+CPU times: user 33min 47s, sys: 9.64 s, total: 33min 56s
+Wall time: 33min 47s
+```
+
+p100
+```
+loaded 1500000 records
+33724
+CPU times: user 25min 27s, sys: 7.12 s, total: 25min 34s
+Wall time: 25min 26s
+```
+
+2_epoch Training times:
+v100:
+```
+CPU times: user 3h 10min 35s, sys: 49min 2s, total: 3h 59min 38s
+Wall time: 3h 59min 31s
+```
+
+p100
+```
+CPU times: user 7h 35min 52s, sys: 4h 32min 18s, total: 12h 8min 11s
+Wall time: 12h 7min 42s
+```
+
+
+Validation of the Model:
+v100:
+```
+CPU times: user 14min 8s, sys: 1min 49s, total: 15min 57s
+Wall time: 15min 53s
+```
+
+p100
+```
+CPU times: user 37min 56s, sys: 22min 45s, total: 1h 42s
+Wall time: 1h 36s
+```
+
+AUC Score (1 epoch)
+v100:
+```
+AUC score : 0.96990
+```
+
+p100
+```
+AUC score : 0.97000
+```
+
+AUC Score (2 epoch)
+v100:
+```
+AUC score : 0.96968
+```
+
+p100
+```
+AUC score : 0.97000
+```
