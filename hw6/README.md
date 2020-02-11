@@ -33,7 +33,7 @@ For your v100, enter,
 ibmcloud sl vs create --datacenter=lon04 --hostname=v100a --domain=dima.com --image=2263543 --billing=hourly  --network 1000 --key=1418191 --flavor AC2_8X60X100 --san
 ```
 ibmcloud sl vs create --datacenter=syd04 --hostname=v100a --domain=stephmather.com --image=2263543 --billing=hourly  --network 1000 --key=xxxxxx --flavor AC2_8X60X100 --san
-
+```
 
 **Created Machines:
 
