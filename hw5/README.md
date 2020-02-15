@@ -24,6 +24,12 @@ model.compile(optimizer='adam',
               loss='sparse_categorical_crossentropy',
               metrics=['accuracy'])
 ```
+
+              
+
+* Repeat for the [TF2 Quickstart lab](https://www.tensorflow.org/tutorials/images/transfer_learning_with_hub). Download / upload to TX2 and run to completion.
+* Note: you'll have to make changes to the code and fix the OOM errors.  Hint: what is your batch size? *Reduced batch size to 5 then 2 was the highest possible for the final model*
+* Can you improve model accuracy? Hint: are your layers frozen?
 Improved:
 ```python
 model = tf.keras.models.Sequential([
@@ -48,13 +54,7 @@ model.fit(x_train, y_train, epochs=7)
 
 model.evaluate(x_test,  y_test, verbose=2)
 ```
-Accuracy of improved model is 98.5%. See beginner.html for output.
-              
-
-* Repeat for the [TF2 Quickstart lab](https://www.tensorflow.org/tutorials/images/transfer_learning_with_hub). Download / upload to TX2 and run to completion.
-* Note: you'll have to make changes to the code and fix the OOM errors.  Hint: what is your batch size? *Reduced batch size to 5 then 2 for final model*
-* Can you improve model accuracy? Hint: are your layers frozen?
-
+Accuracy of improved model is 98.5%. See beginner.html for output. Keeping the layers frozen produced a superior result. This is likely a result of the training set being too small to meet the accuracy of the original model.
 
 ## Introduction to / comparison with Tensorflow v1
 TF2 is cool.  However, there's a lot of code still written in Tensorflow v1, and we think that some familiarity with it will still be useful. 
@@ -126,8 +126,8 @@ input_height = 299
 1. What is ImageNet? How many images does it contain? How many classes?*ImageNet is an image database organized according to the WordNet hierarchy (currently only the nouns), in which each node of the hierarchy is depicted by hundreds and thousands of images. The famous ImageNet database used in the annual software contest, the ImageNet Large Scale Visual Recognition Challenge has 1000 classes. However, ImageNet contains over 20,000+ categories and growing.*
 1. Please research and explain the differences between MobileNet and GoogleNet (Inception) architectures.*GoogLeNet  was the first version of the 'inception' architecture. Inception was a leap forward in the architecture of deep learning when moved away from the user defining all the specific of each layer (and thus relying on multiple training runs to optimise the model) and instead performs multiple different transformations at the same input layer in parallel and lets the model choose which one is the most useful. The large amounts of comuptations this could result in is reduced by using 1x1 convultions to induce dimensionality reduction. More simply, GoogLeNet is an image classification pretrained CNN with 22 layers on either the ImageNet or Places365 data sets (Places365 classifies images into 365 different place categories, such as field, park, runway, and lobby). Xception is powering Google's MobileNet application which is a mobile platform based image classifier and is short hand for 'extreme inception'. Xception uses the concept on Inception but it then does a spacewise convultion, taking into account both the positional data of the features as well as the features themselves. It looks for correlations across a 2D space first, followed by looking for correlations across a 1D space. MobileNet is a particular accuracy/resource tradeoff that uses the gains found in the Xception architechure to create a light weight CNN that can run on mobile platforms.*
 1. In your own words, what is a bottleneck? *A bottleneck is a layer that forces the neural network to concentrate feature representation by having less neurons than both the layers above and below it. By limiting the space available to record feature information they can help the model's ability to generalise as well as reducing computation.*
-1. How is a bottleneck different from the concept of layer freezing? Bottlenecks force the network to be able to generalise to new samples for the same classification set. Freezing of layers and retraining is typically used for transfer learning. the first few layers of the pre-trained network are kept (through freezing) and the later layers are allowed to be modified by the new training set. This keeps the information that is common to all image processing (such as edges and surves) but allows new features to be discovered to match the classification problem at hand.*
-1. In the TF1 lab, you trained the last layer (all the previous layers retain their already-trained state). Explain how the lab used the previous layers (where did they come from? how were they used in the process?) *The CNN was sourced from MobileNet. The previous layers were trained on the ImageNet dataset. It was first published by Mark Sandler, Andrew Howard, Menglong Zhu, Andrey Zhmoginov, Liang-Chieh Chen: "Inverted Residuals and Linear Bottlenecks: Mobile Networks for Classification, Detection and Segmentation", 2018. For the first, full MobileNet model, the entire previous model was used. Thiis was then used on the Grace Hopper photo. The MobileNet classified the picture as military uniform, which was one of the classifications in the ImageNet training set. Later on in lab a headless model was used. This was a MobileNet model that had the last classifgication layer removed. A classifcation layer was added and then the Flowers data set was used to train the model. All the previous layers were kept, i.e. the features outputed by the CNN weret eh same as the previous full model, except they were passed through to a different classification layer. Note: it is not recommended to remove Freezing from the majority of the MobileNet layers. The model was trained on a huge data set compared tot he flowers dataset and attempting to retrain is likely to loose more information that it gains. If additional tuning is required, unfreezing of some layers, but not all may be the solution.
+1. How is a bottleneck different from the concept of layer freezing? *Bottlenecks force the network to be able to generalise to new samples for the same classification set. Freezing of layers and retraining is typically used for transfer learning. The first few layers of the pre-trained network are kept (through freezing) and the later layers are allowed to be modified by the new training set. This keeps the information that is common to all image processing (such as edges and surves) but allows new features to be discovered to match the classification problem at hand.*
+1. In the TF1 lab, you trained the last layer (all the previous layers retain their already-trained state). Explain how the lab used the previous layers (where did they come from? how were they used in the process?) *The CNN was sourced from MobileNet. The previous layers were trained on the ImageNet dataset. It was first published by Mark Sandler, Andrew Howard, Menglong Zhu, Andrey Zhmoginov, Liang-Chieh Chen: "Inverted Residuals and Linear Bottlenecks: Mobile Networks for Classification, Detection and Segmentation", 2018. For the first, full MobileNet model, the entire previous model was used. Thiis was then used on the Grace Hopper photo. The MobileNet classified the picture as military uniform, which was one of the classifications in the ImageNet training set. Later on in lab a headless model was used. This was a MobileNet model that had the last classifgication layer removed. A classifcation layer was added and then the Flowers data set was used to train the model. All the previous layers were kept, i.e. the features outputed by the CNN weret eh same as the previous full model, except they were passed through to a different classification layer. Note: it is not recommended to remove Freezing from the majority of the MobileNet layers. The model was trained on a huge data set compared tot he flowers dataset and attempting to retrain is likely to loose more information that it gains. If additional tuning is required, unfreezing of some layers, but not all may be the solution.*
 1. How does a low `--learning_rate` (step 7 of TF1) value (like 0.005) affect the precision? How much longer does training take? *The speed for 0.5 was quite slow but 0.005 was very slow. Training went from a few minutes to 20min+. Scripts used are below. Precision was slightly increased with the slower learning rate for the validation set, but not by much. Precision for the training set was higher for 0.0005 learning rate. Script:
 ```python
 python3 -m scripts.retrain \
@@ -166,10 +166,18 @@ python3 -m scripts.retrain \
   --learning_rate=1
 ```
 *Training results for 1, 0.5 and 0.005 learning rates*
-![Training Results TF1](TF_for_poets.jpg) 
+![Training Results TF1](TF_for_poets.jpg
  
 1. For step 8, you can use any images you like. Pictures of food, people, or animals work well. You can even use [ImageNet](http://www.image-net.org/) images. How accurate was your model? Were you able to train it using a few images, or did you need a lot? *I trained it on a set of images I pulled from google that were either dance studios or dance stages. It did not need many images, reasonable performance was gleaned from on 150 samples in each category. The accuracy of the model was ~83% which was reasonable given the categories were hard to distinguish and some were mislabelled. For dataset urls please see dance_stage.csv and dance_studio.csv*
 1. Run the TF1 script on the CPU (see instructions above) How does the training time compare to the default network training (section 4)?  Why?
+GPU reached plateau for accuracy after about 2 mins and 500 training steps
+
+![Training Results TF1 GPU](TX2GPU_val_acc_2mins) 
+
+CPU reached plateau for accuracy after about 2 mins 30 sec and 700 training steps. The bottlenecks took much longer to load, increasing the overall training time.
+
+![Training Results TF1 CPU](TX2CPU_val_acc_2mins) 
+
 1. Try the training again, but this time do `export ARCHITECTURE="inception_v3"` Are CPU and GPU training times different?
 1. Given the hints under the notes section, if we trained Inception_v3, what do we need to pass to replace ??? below to the label_image script?  Can we also glean the answer from examining TensorBoard?
 ```
