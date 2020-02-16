@@ -166,23 +166,22 @@ python3 -m scripts.retrain \
   --learning_rate=1
 ```
 *Training results for 1, 0.5 and 0.005 learning rates*
-![Training Results TF1](TF_for_poets.jpg
+![Training Results TF1](TF_for_poets.jpg)
  
 1. For step 8, you can use any images you like. Pictures of food, people, or animals work well. You can even use [ImageNet](http://www.image-net.org/) images. How accurate was your model? Were you able to train it using a few images, or did you need a lot? *I trained it on a set of images I pulled from google that were either dance studios or dance stages. It did not need many images, reasonable performance was gleaned from on 150 samples in each category. The accuracy of the model was ~83% which was reasonable given the categories were hard to distinguish and some were mislabelled. For dataset urls please see dance_stage.csv and dance_studio.csv*
 1. Run the TF1 script on the CPU (see instructions above) How does the training time compare to the default network training (section 4)?  Why?
 GPU reached plateau for accuracy after about 2 mins and 500 training steps
-
-![Training Results TF1 GPU](TX2GPU_val_acc_2mins) 
+![Training Results TF1 GPU](TX2GPU_val_acc_2mins.jpg) 
 
 CPU reached plateau for accuracy after about 2 mins 30 sec and 700 training steps. The bottlenecks took much longer to load, increasing the overall training time.
-
-![Training Results TF1 CPU](TX2CPU_val_acc_2mins) 
+![Training Results TF1 CPU](TX2CPU_val_acc_2mins.jpg) 
 
 1. Try the training again, but this time do `export ARCHITECTURE="inception_v3"` Are CPU and GPU training times different?
->GPU reached plateau for accuracy after about 2 mins and 1000 training steps. The bottlenecks took signifcantly longer than the mobilenet, revealling the size of the inception neural network. The load time was 14 minutes for bottlenecks on the GPU.
->![Training Results TF1 GPU](TX2GPU_val_acc_2mins_inception) 
->CPU reached plateau for accuracy after about 10 mins and 2000 training steps. The bottlenecks took much longer to load, up to 40 minutes increasing the overall training time.
->![Training Results TF1 CPU](TX2CPU_val_acc_2mins_inception) 
+GPU reached plateau for accuracy after about 2 mins and 1000 training steps. The bottlenecks took signifcantly longer than the mobilenet, revealling the size of the inception neural network. The load time was 14 minutes for bottlenecks on the GPU.
+![Training Results TF1 GPU](TX2GPU_val_acc_2mins_inception.jpg) 
+
+CPU reached plateau for accuracy after about 10 mins and 2000 training steps. The bottlenecks took much longer to load, up to 40 minutes increasing the overall training time.
+![Training Results TF1 CPU](TX2CPU_val_acc_2mins_inception.jpg) 
 
 1. Given the hints under the notes section, if we trained Inception_v3, what do we need to pass to replace ??? below to the label_image script?  Can we also glean the answer from examining TensorBoard?
 ```
