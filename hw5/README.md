@@ -179,10 +179,27 @@ CPU reached plateau for accuracy after about 2 mins 30 sec and 700 training step
 ![Training Results TF1 CPU](TX2CPU_val_acc_2mins) 
 
 1. Try the training again, but this time do `export ARCHITECTURE="inception_v3"` Are CPU and GPU training times different?
+>GPU reached plateau for accuracy after about 2 mins and 1000 training steps. The bottlenecks took signifcantly longer than the mobilenet, revealling the size of the inception neural network. The load time was 14 minutes for bottlenecks on the GPU.
+>![Training Results TF1 GPU](TX2GPU_val_acc_2mins_inception) 
+>CPU reached plateau for accuracy after about 10 mins and 2000 training steps. The bottlenecks took much longer to load, up to 40 minutes increasing the overall training time.
+>![Training Results TF1 CPU](TX2CPU_val_acc_2mins_inception) 
+
 1. Given the hints under the notes section, if we trained Inception_v3, what do we need to pass to replace ??? below to the label_image script?  Can we also glean the answer from examining TensorBoard?
 ```
 python -m scripts.label_image --input_layer=??? --input_height=??? --input_width=???  --graph=tf_files/retrained_graph.pb --image=tf_files/flower_photos/daisy/21652746_cc379e0eea_m.jpg
 ```
+The following script addresses the bugs identified
+```
+python3 -m scripts.label_image --input_layer=Mul --input_height=299 --input_width=299  --graph=tf_files/retrained_graph.pb --image=tf_files/flower_photos/daisy/21652746_cc379e0eea_m.jpg
+```
+Output:
+Evaluation time (1-image): 7.879s
+
+daisy (score=0.99794)
+sunflowers (score=0.00148)
+dandelion (score=0.00043)
+tulips (score=0.00012)
+roses (score=0.00003)
 
 ### To turn in:
 Turn in a text file or pdf with your answers to the questions above.
