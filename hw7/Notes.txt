@@ -1,0 +1,137 @@
+#w251
+# Notes for Building Containers for W251 HW3
+#Stephanie Mather
+
+## On Jetson TX2
+
+## Create a bridge: (internal network so containers can talk to each other)
+docker network create --driver bridge hw03
+
+
+### Create mqtt broker
+#Create an alpine linux - based mosquitto container:
+docker run --name mosquitto --network hw03 -p 1883:1883 -ti alpine sh
+
+#We are inside the container now
+#install mosquitto
+apk update && apk add mosquitto
+# run mosquitto
+/usr/sbin/mosquitto
+# Press Control-P Control-Q to disconnect from the container
+
+
+##Create ubuntu (Face Detector)
+#give access to camera
+xhost local:root
+
+#create docker container for face detector
+docker build -t tensorrtlab05 -f Dockerfile.tensorrtlab05 .
+
+#run container
+docker run -e DISPLAY=$DISPLAY --rm  --privileged -v /tmp:/tmp --network hw03 -ti tensorrtlab05 /bin/bash
+
+Execute to download graph
+wget https://github.com/yeephycho/tensorflow-face-detection/blob/master/model/frozen_inference_graph_face.pb?raw=true -O data/frozen_inference_graph_face.pb
+
+python3 face_detector_new.py
+
+
+
+## create fowarder
+docker run -v /data/hw7:/mnt/hw7 --name forwarder --network hw03 -ti alpine sh
+#install python based MQTT tools
+apk add py3-paho-mqtt 
+#create python code forwarder
+
+#forward messages using python mqtt
+python3 mnt/hw7/forwardtoCVSI.py
+
+
+
+
+## Cloud Architecture
+##log into vm jumpbox
+#create new VSI to host mqtt broker and image procressor
+ibmcloud sl vs create --hostname=hw7VSI --domain=W251-StephMather.cloud --cpu=2 --memory=2048 --datacenter=syd04 --os=UBUNTU_16_64 --san --disk=100 --key=1693432
+
+#ssh into new VSI
+ssh -i ~/.ssh/id_rsa root@
+
+#Once in I disabled the ability to login in with passwords:
+vi /etc/ssh/sshd_config
+
+#PermitRootLogin prohibit-password
+#PasswordAuthentication no
+
+#install docker
+apt-get update
+apt -y install docker.io
+
+# Create a bridge: (internal network so containers can talk to each other)
+docker network create --driver bridge hw03
+
+#create mqtt-broker
+# Create an alpine linux - based mosquitto container:
+docker run --name mosquitto --network hw03 -p 1883:1883 -ti alpine sh
+# we are inside the container now
+# install mosquitto
+apk update && apk add mosquitto
+# run mosquitto
+/usr/sbin/mosquitto
+# Press Control-P Control-Q to disconnect from the container
+
+
+#create image processor and saver
+# Create an ubuntu linux - based processor container:
+docker run --name processor --network hw03 --privileged -ti ubuntu bash
+
+apt-get update
+apt-get -y install automake autotools-dev g++ git libcurl4-openssl-dev libfuse-dev libssl-dev libxml2-dev make pkg-config
+
+git clone https://github.com/s3fs-fuse/s3fs-fuse.git
+
+#create s3fs-fuse so can connect the object cloud storage to the CVSI
+cd s3fs-fuse
+./autogen.sh
+./configure
+make
+make install
+
+echo "access_key:secret_key" > $HOME/.cos_creds
+chmod 600 $HOME/.cos_creds
+
+mkdir -m 777 /mnt/hw7
+s3fs bucketname /mnt/hw7 -o passwd_file=$HOME/.cos_creds -o sigv2 -o use_path_request_style -o url=http://s3.us-south.cloud-object-storage.appdomain.cloud
+
+#Install command line tool to interact with the bucket
+apt install python-pip
+pip install --upgrade s3cmd
+
+s3cmd --configure 
+
+
+cat /root/.s3cfg
+
+access_key = your_access_key 
+secret_key = your_secret_key 
+gpg_command = /usr/local/bin/gpg
+# host_base = s3.private.us-south.cloud-object-storage.appdomain.cloud
+# host_bucket = %(bucket)s.s3.private.us-south.cloud-object-storage.appdomain.cloud
+host_base = s3.au-syd.cloud-object-storage.appdomain.cloud
+host_bucket = cos-smather-hw7s.s3.au-syd.cloud-object-storage.appdomain.cloud
+use_https = True
+
+#Assuming that you have a bucket creaated, let's list its content. Here's what I did:
+s3cmd ls s3://cos-smather-hw7
+
+#mirror a directory into the object storage bucket.
+s3cmd sync /mnt/hw7/ s3://cos-smather-hw7
+
+#Create facesaver.py
+cat > facesaver.py
+
+#install Python and Paho
+pip install paho-mqtt
+pip install numpy
+
+python facesaver.py
