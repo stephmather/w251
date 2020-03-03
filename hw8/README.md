@@ -66,7 +66,7 @@ Steps (Assuming labelImg):
 
 Questions: 
 1.	In the time allowed, how many images did you annotate? *All of them, 384 in about 2hours 40 mins. This was aided by turning on the Autosave feature, using keyboard shortcuts and labelling all the TIE Fighters of a bunch of images and then going back and doing the Millennium Falcons. I also did it in 20-30 minutues bursts to prevent fatigue*
-2.	Home many instances of the Millennium Falcon did you annotate? *311 Millennium Falcons* How many TIE Fighters? *304 Tie fighters* `grep -roh TIE . |wc -w`
+2.	Home many instances of the Millennium Falcon did you annotate? *311 Millennium Falcons* How many TIE Fighters? *304 Tie fighters. The count was using the following code:* `grep -roh TIE . |wc -w`
 3.	Based on this experience,  how would you handle the annotation of large image data set? *I would not attempt to label a large dataset by hand on my own. There are several available options, the preference for which would depend on the project att hand. I th labelling was for a generic object that most people can recognise, crowdsourcing through Mechanical Turk or similar is a goo optio. However, to couteract accuracy issues I would get each image labelled by several different users and remove obvious error. Another method would be to label a smaller dataset and use machine learning technique to label similar pictures. Then I would implement manual checking and algorithm refinement. If it was a specialist dataset for a cmpany or client, I would be more likely to consider in-house labelling. This does have a higher cost, but it ay be the only option in some cases. Finally, there is the option of using specialist label service companies. This would be a good choice if accuracy and/or the level of difficulty was reasonably high.*
 4.	Think about image augmentation?  How would augmentations such as flip, rotation, scale, cropping, and translation effect the annotations? *These types of augmentation do not fundamentally chnage where the item of interest is so the annonations would not need to be repeated. However, the same mathematical transform that is applied to the image must also be applied to the annotation as the x and y coordinates of the rectangle will morph.*
 
@@ -99,12 +99,12 @@ Questions:
 
 ## What to turn  in
 ### Part 1
-1. A zip or tar file of your annoations.
-2. Your answers to questions 1 through 4. 
+1. A zip or tar file of your annoations. *See https://github.com/stephmather/w251/blob/master/hw8/annotations.zip*
+2. Your answers to questions 1 through 4. *See above*
 
 ### Part 2
-1. Your answer to question 1.
+1. Your answer to question 1. *See above*
 
 ### Part 3
-1. Your answer to question 1.
+1. Your answer to question 1. *See above*
 
