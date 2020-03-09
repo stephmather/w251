@@ -1,6 +1,7 @@
 # Homework 9: Distributed Training and Neural Machine Translation
 
-## Please note that this homework is graded
+## Stephanie Mather
+
 ### Read up on OpenSeq2Seq
 Nvidia [OpenSeq2Seq](https://github.com/NVIDIA/OpenSeq2Seq/) is a framework for sequence to sequence tasks such as Automatic Speech Recognition (ASR) and Natural Language Processing (NLP), written in Python and TensorFlow. Many of these tasks take a very long to train, hence the need to train on more than one machine.  In this week's lab, we'll be training a [Transformer-based Machine Translation network](https://nvidia.github.io/OpenSeq2Seq/html/machine-translation/transformer.html) on a small English to German WMT corpus.
 
@@ -24,8 +25,7 @@ ibmcloud sl vs create --datacenter=syd04 --hostname=v100a --domain=stephmather.c
 
 ![Upgraded Virtual Machine](/hw9/jpg/2_GPU_available_on_each.jpg)
 
-Mounting the disk required following the previous instructions from week 2(??)
-vim wasn't installed so I modified /etc/fsta via cat: `cat > /etc/fstab`
+Mounting the disk required following the previous instructions from week 1. vim wasn't installed so I modified /etc/fsta via cat: `cat > /etc/fstab` as follows:
 
 ```
 LABEL=cloudimg-rootfs   /        ext4   defaults,relatime       0 0
@@ -56,40 +56,65 @@ LABEL=SWAP-xvdb1        none    swap    sw,comment=cloudconfig  0       2
     cd /opt/OpenSeq2Seq 
     scripts/get_en_de.sh /data/wmt16_de_en
     ```
-    1. Copy configuration file to /data directory: ``` cp example_configs/text2text/en-de/transformer-base.py /data ```
+    1. Copy configuration file to /data directory: ``` cp example_configs/text2text/en-de/transformer-base.py /data ``` *COMPLETE*
     1. Edit /data/transformer-base.py: replace ```[REPLACE THIS TO THE PATH WITH YOUR WMT DATA]``` with ```/data/wmt16_de_en/```,  in base_parms section replace ```"logdir": "nmt-small-en-de",``` with ```"logdir": "/data/en-de-transformer/",```  make "batch_size_per_gpu": 128, and the in eval_params section set "repeat": to True. *COMPLETE - see transformer-base.py*
-    1. If you are using V-100 GPUs, modify the config file to use mixed precision per the instructions in the file and set  "batch_size_per_gpu": 256 (yes, you can fit twice as much data in memory if you are using 16-bit precision) *COMPLETE - see transformer-base.py*
+    1. If you are using V-100 GPUs, modify the config file to use mixed precision per the instructions in the file and set  "batch_size_per_gpu": 256 (yes, you can fit twice as much data in memory if you are using 16-bit precision) *COMPLETE - see transformer-base.py for complete modifications to this file*
     1. Start training -- **on the first VM only:** ```nohup mpirun --allow-run-as-root -n 4 -H <vm1 private ip address>:2,<vm2 private ip address>:2 -bind-to none -map-by slot --mca btl_tcp_if_include eth0  -x NCCL_SOCKET_IFNAME=eth0 -x NCCL_DEBUG=INFO -x LD_LIBRARY_PATH  python run.py --config_file=/data/transformer-base.py --use_horovod=True --mode=train_eval & ``` *COMPLETE - before running I also checked that 2 GPUs were available: GPUs assigned to v100a and v100b are as expected, 4 GPUs available in total*
-    ![GPUs assigned to v100a and v100b are as expected, 4 GPUs available in total](2_GPU_available_on_each.jpg)
+        ![GPUs assigned to v100a and v100b are as expected, 4 GPUs available in total](/hw9/jpg/2_GPU_available_on_each.jpg)
     1. Note that the above command starts 4 total tasks (-n 4), two on each node (-H <vm1 private ip address>:2,<vm2 private ip address>:2), asks the script to use horovod for communication, which in turn, uses NCCL, and then forces NCCL to use the internal nics on the VMs for communication (-x NCCL_SOCKET_IFNAME=eth0). Mpi is only used to set up the cluster.
-    1. Monitor training progress: ``` tail -f nohup.out ``` *COMPLETE - I did have some troubleshooting to complete after aborting my first attempt when I releasised I wanted to limit the number of maximum training steps. I had to delete the log files as well as the nohup.out file before it would rerun.*
-    1. Start tensorboard on the same machine where you started training, e.g. ```nohup tensorboard --logdir=/data/en-de-transformer``` You should be able to monitor your progress by putting http://public_ip_of_your_vm1:6006 ! *COMPLETE*
-    1. *You will run out of credits unless you kill them after 50,000 steps* (the config file will make the model run for 300,000 steps unless you change the max_steps parameter or kill training by hand) *I aborted my orginal training attempt (after only 500 steps) and restarted after reducing the max_steps parameter* 
-    1. After your training is done, download your best model to your jetson tx2.  [Hint: it will be located in /data/en-de-transformer on the first VM]  Alternatively, you could always download a checkpoint from Nvidia [here](https://nvidia.github.io/OpenSeq2Seq/html/machine-translation.html)
+    1. Monitor training progress: ``` tail -f nohup.out ``` *COMPLETE - I did have some troubleshooting to complete after aborting my first attempt when I realised I wanted to limit the number of maximum training steps. I had to delete the log files, model files and the nohup.out file before it would rerun.*
+    1. Start tensorboard on the same machine where you started training, e.g. ```nohup tensorboard --logdir=/data/en-de-transformer``` You should be able to monitor your progress by putting http://public_ip_of_your_vm1:6006 ! *COMPLETE - See TensorFlow Screenshots for details*
+    1. *You will run out of credits unless you kill them after 50,000 steps* (the config file will make the model run for 300,000 steps unless you change the max_steps parameter or kill training by hand) *I aborted my original training attempt (after only 500 steps) and restarted after reducing the max_steps parameter. This stoppped as expected at 50,000 steps. However I did have some delays both starting the training and cancelling the machines as I needed to download the models files. I ended up having the machines for longer, but still within my credit limits. Something I have no learned is that I can downgrade the GPU attached to the machine without effecting the hard disk. This allows you to reduce the cost of the machine when it is on standby considerably. An even better approach post training would be to mount an external location for the model files so they could be immediately downloaded.* 
+    1. After your training is done, download your best model to your jetson tx2.  [Hint: it will be located in /data/en-de-transformer on the first VM]  Alternatively, you could always download a checkpoint from Nvidia [here](https://nvidia.github.io/OpenSeq2Seq/html/machine-translation.html) *Transferring the large model files was a new challenge for me as I could not use github to complete my task. With help from a friend I used sftp to download the file first from my VM to my jumpbox and then from my jumpbox to my Windows PC. Finally I completed the transfer from my Windows PC to my Jeston through direct sftp. This was my first time using secure file transfer protocol and it was quite simple and quick, although it required a few steps.*
  
 ### Create the tx2 container for openseq2seq 
-Let us create a tx2 compatible container for OpenSeq2Seq.  We probably won't be able to use it for training, but it could be useful for inference.  Make sure that you have a local TF container in your TX2 that we created when we completed during [HW 5](https://github.com/MIDS-scaling-up/v2/tree/master/week05/hw). (We also have all TF containers posted [in the W251 docker hub](https://cloud.docker.com/u/w251/repository/docker/w251/tensorflow) ). Then, use [this Dockerfile](https://github.com/MIDS-scaling-up/v2/blob/master/week09/hw/docker/arm64/Dockerfile.dev-tx2-4.2_b158-py3) . We will need this container for our in-class lab.  Put your downloaded best trained model someplace onto the external hard drive of your jetson -- e.g. /data/en-de-transformer
+Let us create a tx2 compatible container for OpenSeq2Seq.  We probably won't be able to use it for training, but it could be useful for inference.  Make sure that you have a local TF container in your TX2 that we created when we completed during [HW 5](https://github.com/MIDS-scaling-up/v2/tree/master/week05/hw). (We also have all TF containers posted [in the W251 docker hub](https://cloud.docker.com/u/w251/repository/docker/w251/tensorflow) ). Then, use [this Dockerfile](https://github.com/MIDS-scaling-up/v2/blob/master/week09/hw/docker/arm64/Dockerfile.dev-tx2-4.2_b158-py3) . We will need this container for our in-class lab.  Put your downloaded best trained model someplace onto the external hard drive of your jetson -- e.g. /data/en-de-transformer *COMPLETE*
 
 
 ### Submission
 
 Please submit the nohup.out file along with screenshots of your Tensorboard indicating training progress (Blue score, eval loss) over time.  Also, answer the following (simple) questions:
 * How long does it take to complete the training run? (hint: this session is on distributed training, so it *will* take a while)
-*It took 6 hours for the first 12700  steps so I expect 50 000 to complete in the 24 hours*
+*It took 6 hours for the first 12700  steps so I expect 50 000 to complete in the 24 hours. It actually completed in ~18 hours, faster than expected.*
+
 * Do you think your model is fully trained? How can you tell?
+*The model was not fully trained in only 50,000 steps, however it was starting to flatten out both the BLEU score and the evaluation loss so additional training would have diminshing returns. Based on the provided example, my model was performing better than the example model at 50000 steps (my BLEU score >0.365, example score <0.355 @ 50000 steps), but could have been improved up to ~0.380. Based on this, I expect my model would not have needed 300,000 steps to reach the same accuracy as the example model. The differences in training may be a result of different hardware. I completed my training on the V100 which is relatively new, the original model may have been completed on P100 GPUs. As found in hw6, this can result in differences.*
+My Model BLEU curve
+![My Model BLEU Score](/hw9/jpg/Eval_BLEU_Score.jpg)
+Example Model BLEU curve
+![Validation BLEU curve](/hw9/jpg/bleu2.jpg)
+
+My validation loss:
+![Validation loss curve](/hw9/jpg/eval_loss.JPG)
+Example Validation loss
+![Validation loss curve](/hw9/jpg/loss.JPG)
+
 * Were you overfitting?
+*From the evaluation loss graph above I was not overfitting the data, the loss has not yet reach a point where it is constant. However, I expect if I continued past ~100,000 steps it would flatten completely, signalling that overfitting was occuring and little to no accuracy gain would be available for evaluation data because the model is too fitted to the training data.
+
 * Were your GPUs fully utilized? *Yes, both GPUs on v100a and v100b were 100% utilised*
 ![v100a GPU Usage at 100%](/hw9/jpg/V100a_GPU_usage.jpg)
 ![v100b GPU Usage at 100%](/hw9/jpg/V100b_GPU_usage.jpg)
+
 * Did you monitor network traffic (hint:  ```apt install nmon ```) ? Was network the bottleneck?
-I did monitor the network. I had to conduct `apt update` and then `apt instal nmon`. The network was not a bottleneck
+*I did monitor the network. I had to conduct `apt update` and then `apt instal nmon`. The network was not a bottleneck as it was set to 1GBps and ~ 250MBps was used the majority of the time.
 ![Network Monitoring Results](/hw9/jpg/Network_monitoring.jpg)
-* Take a look at the plot of the learning rate and then check the config file.  Can you explan this setting?
+
+* Take a look at the plot of the learning rate and then check the config file.  Can you explain this setting?
+
+
 * How big was your training set (mb)? How many training lines did it contain?
+
+
 * What are the files that a TF checkpoint is comprised of?
+
+
 * How big is your resulting model checkpoint (mb)?
+
+
 * Remember the definition of a "step". How long did an average step take? *On average each step took 1.7 seconds*
-* How does that correlate with the observed network utilization between nodes? *The if the network speed is reduced, the GPU utilisation drops below 100% as the network becomes the bottleneck and the time to complete a step increases. Thus the netwrok speed is inverse to the step time.*
+
+* How does that correlate with the observed network utilization between nodes? *The if the network speed is reduced, the GPU utilisation drops below 100% as the network becomes the bottleneck and the time to complete a step increases. Thus the network speed is inverse to the step time.*
 
 ### Tensorboard Screenshots
 Your BLEU TB plot should look something like this:
