@@ -13,9 +13,8 @@ VM v100a
 `
 
 VM v100b
-```
-ibmcloud sl vs create --datacenter=syd04 --hostname=v100b --domain=stephmather.com --image=2263543 --billing=hourly  --network 1000 --key=xxxxxx --flavor AC2_8X60X100 --san
-```
+`ibmcloud sl vs create --datacenter=syd04 --hostname=v100b --domain=stephmather.com --image=2263543 --billing=hourly  --network 1000 --key=xxxxxx --flavor AC2_8X60X100 --san
+`
 
 *I used the v100 image from HW6 and then upgraded the GPU to AC2_16X120X100 from the IBM Resize interface and added the 2TB hard disk. Alternatively I could have upgraded the GPUs when I created the VM with code such as:*
 ```
@@ -101,10 +100,22 @@ Example Validation loss
 ![Network Monitoring Results](/hw9/jpg/Network_monitoring.jpg)
 
 * Take a look at the plot of the learning rate and then check the config file.  Can you explain this setting?
+![Learning Rates](/hw9/jpg/learning_rate.jpg)
 
+*Taking a look at the above below the learning rate increases until the 8000th step and then gradually declines. This is confirmed by the configuration file setting the learning rate policy as transformer_policy with 8000 warm up steps.
+`"lr_policy": transformer_policy,
+  "lr_policy_params": {
+    "learning_rate": 2.0,
+    "warmup_steps": 8000,
+    "d_model": d_model,
+  },`
+  Looking at the learning rate policy code (https://github.com/NVIDIA/OpenSeq2Seq/blob/master/open_seq2seq/optimizers/lr_policies.py) the transformer policy is based on the Adam Optimiser in Section 5.3 of [Attention is All You Need](https://arxiv.org/pdf/1706.03762.pdf). This increases the lr linearly for the warm-up steps and decreasing it thereafter proportionally to the inverse square root of the step number.
 
 * How big was your training set (mb)? How many training lines did it contain?
-
+The English training set was 637MB and the German training set was 711MB. Both data sets contained 4562102 lines
+![Line Count Training set](/hw9/jpg/Word_count_for_training_dataset.jpg)
+Including the processed files, the training data took 9260MB of memory in total
+![Total Memory of Training set](/hw9/jpg/total_memory_for_training_dataset.jpg)
 
 * What are the files that a TF checkpoint is comprised of?
 
