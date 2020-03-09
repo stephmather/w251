@@ -22,7 +22,7 @@ ibmcloud sl vs create --datacenter=syd04 --hostname=v100a --domain=stephmather.c
 ```
 *By using the HW6 image the Nvidia, Docker and Tensorflow modules were already installed.*
 
-![Upgraded Virtual Machine](/jpg/upgrade_vm.jpg)
+![Upgraded Virtual Machine](/hw9/jpg/2_GPU_available_on_each.jpg)
 
 Mounting the disk required following the previous instructions from week 2(??)
 vim wasn't installed so I modified /etc/fsta via cat: `cat > /etc/fstab`
@@ -79,11 +79,11 @@ Please submit the nohup.out file along with screenshots of your Tensorboard indi
 * Do you think your model is fully trained? How can you tell?
 * Were you overfitting?
 * Were your GPUs fully utilized? *Yes, both GPUs on v100a and v100b were 100% utilised*
-![v100a GPU Usage at 100%](V100a_GPU_usage.jpg)
-![v100b GPU Usage at 100%](V100b_GPU_usage.jpg)
+![v100a GPU Usage at 100%](/hw9/jpg/V100a_GPU_usage.jpg)
+![v100b GPU Usage at 100%](/hw9/jpg/V100b_GPU_usage.jpg)
 * Did you monitor network traffic (hint:  ```apt install nmon ```) ? Was network the bottleneck?
 I did monitor the network. I had to conduct `apt update` and then `apt instal nmon`. The network was not a bottleneck
-![Network Monitoring Results](Network_monitoring.jpg)
+![Network Monitoring Results](/hw9/jpg/Network_monitoring.jpg)
 * Take a look at the plot of the learning rate and then check the config file.  Can you explan this setting?
 * How big was your training set (mb)? How many training lines did it contain?
 * What are the files that a TF checkpoint is comprised of?
@@ -91,12 +91,12 @@ I did monitor the network. I had to conduct `apt update` and then `apt instal nm
 * Remember the definition of a "step". How long did an average step take? *On average each step took 1.7 seconds*
 * How does that correlate with the observed network utilization between nodes? *The if the network speed is reduced, the GPU utilisation drops below 100% as the network becomes the bottleneck and the time to complete a step increases. Thus the netwrok speed is inverse to the step time.*
 
-### Hints
+### Tensorboard Screenshots
 Your BLEU TB plot should look something like this:
-![Validation BLEU curve](bleu2.jpg)
+![Validation BLEU curve](/hw9/jpg/bleu2.jpg)
 
 Your loss should be something like:
-![Validation loss curve](loss.JPG)
+![Validation loss curve](/hw9/jpg/loss.JPG)
 
 And your learning rate  should be something like:
-![Learning rate curve](lr.JPG)
+![Learning rate curve](/hw9/jpg/lr.JPG)
