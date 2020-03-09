@@ -22,7 +22,7 @@ ibmcloud sl vs create --datacenter=syd04 --hostname=v100a --domain=stephmather.c
 ```
 *By using the HW6 image the Nvidia, Docker and Tensorflow modules were already installed.*
 
-![Upgraded Virtual Machine](upgrade_vm.jpg)
+![Upgraded Virtual Machine](/jpg/upgrade_vm.jpg)
 
 Mounting the disk required following the previous instructions from week 2(??)
 vim wasn't installed so I modified /etc/fsta via cat: `cat > /etc/fstab`
