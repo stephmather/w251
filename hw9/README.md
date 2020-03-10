@@ -89,7 +89,7 @@ Example Model BLEU curve
 My validation loss:
 ![Validation loss curve](/hw9/jpg/eval_loss.jpg)
 Example Validation loss
-![Validation loss curve](/hw9/jpg/loss.jpg)
+![Validation loss curve](/hw9/jpg/loss.JPG)
 
 * Were you overfitting?
 *From the evaluation loss graph above I was not overfitting the data, the loss has not yet reach a point where it is constant. However, I expect if I continued past ~100,000 steps it would flatten completely, signalling that overfitting was occuring and little to no accuracy gain would be available for evaluation data because the model is too fitted to the training data.*
@@ -115,7 +115,7 @@ Example Validation loss
     "warmup_steps": 8000,
     "d_model": d_model,
   },`
-  Looking at the learning rate policy code (https://github.com/NVIDIA/OpenSeq2Seq/blob/master/open_seq2seq/optimizers/lr_policies.py) the transformer policy is based on the Adam Optimiser in Section 5.3 of [Attention is All You Need](https://arxiv.org/pdf/1706.03762.pdf). This increases the lr linearly for the warm-up steps and decreasing it thereafter proportionally to the inverse square root of the step number.
+  Looking at the learning rate [policy code](https://github.com/NVIDIA/OpenSeq2Seq/blob/master/open_seq2seq/optimizers/lr_policies.py) the transformer policy is based on the Adam Optimiser in Section 5.3 of [Attention is All You Need](https://arxiv.org/pdf/1706.03762.pdf). This increases the lr linearly for the warm-up steps and decreasing it thereafter proportionally to the inverse square root of the step number.*
 
 * How big was your training set (mb)? How many training lines did it contain?
 *The English training set was 637MB and the German training set was 711MB. Both data sets contained 4562102 lines*
