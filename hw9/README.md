@@ -72,8 +72,8 @@ Let us create a tx2 compatible container for OpenSeq2Seq.  We probably won't be 
 
 ### Submission
 
-Please submit the nohup.out file along with screenshots of your Tensorboard indicating training progress (Blue score, eval loss) over time.  Also, answer the following (simple) questions:
-*The [nohup.out](/hw9/nohup.out) is available in my github.*
+**Tensorboard screenshot [1](/hw9/jpg/Tensor_summary1.jpg) and [2](/hw9/jpg/Tensor_summary2.jpg)**
+**The [nohup.out](/hw9/nohup.out) is also available in my github.**
 
 * How long does it take to complete the training run? (hint: this session is on distributed training, so it *will* take a while)
 *It took 6 hours for the first 12700  steps so I expected 50 000 to complete in the 24 hours. It actually completed in ~22 hours*
