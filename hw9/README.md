@@ -76,7 +76,9 @@ Please submit the nohup.out file along with screenshots of your Tensorboard indi
 *The [nohup.out](/hw9/nohup.out) is available in my github.*
 
 * How long does it take to complete the training run? (hint: this session is on distributed training, so it *will* take a while)
-*It took 6 hours for the first 12700  steps so I expected 50 000 to complete in the 24 hours. It actually completed in ~18 hours, faster than expected.*
+*It took 6 hours for the first 12700  steps so I expected 50 000 to complete in the 24 hours. It actually completed in ~22 hours*
+My Model BLEU curve
+![My Model BLEU Score](/hw9/jpg/Eval_BLEU_Score_time.jpg)
 
 * Do you think your model is fully trained? How can you tell?
 *The model was not fully trained in only 50,000 steps, however it was starting to flatten out both the BLEU score and the evaluation loss so additional training would have diminshing returns. Based on the provided example, my model was performing better than the example model at 50000 steps (my BLEU score >0.365, example score <0.355 @ 50000 steps), but could have been improved up to ~0.380. Based on this, I expect my model would not have needed 300,000 steps to reach the same accuracy as the example model. The differences in training may be a result of different hardware. I completed my training on the V100 which is relatively new, the original model may have been completed on P100 GPUs. As found in hw6, this can result in differences.*
