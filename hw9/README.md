@@ -73,8 +73,10 @@ Let us create a tx2 compatible container for OpenSeq2Seq.  We probably won't be 
 ### Submission
 
 Please submit the nohup.out file along with screenshots of your Tensorboard indicating training progress (Blue score, eval loss) over time.  Also, answer the following (simple) questions:
+*The [nohup.oy](/hw9/nohup.out) is available in my github.*
+
 * How long does it take to complete the training run? (hint: this session is on distributed training, so it *will* take a while)
-*It took 6 hours for the first 12700  steps so I expect 50 000 to complete in the 24 hours. It actually completed in ~18 hours, faster than expected.*
+*It took 6 hours for the first 12700  steps so I expected 50 000 to complete in the 24 hours. It actually completed in ~18 hours, faster than expected.*
 
 * Do you think your model is fully trained? How can you tell?
 *The model was not fully trained in only 50,000 steps, however it was starting to flatten out both the BLEU score and the evaluation loss so additional training would have diminshing returns. Based on the provided example, my model was performing better than the example model at 50000 steps (my BLEU score >0.365, example score <0.355 @ 50000 steps), but could have been improved up to ~0.380. Based on this, I expect my model would not have needed 300,000 steps to reach the same accuracy as the example model. The differences in training may be a result of different hardware. I completed my training on the V100 which is relatively new, the original model may have been completed on P100 GPUs. As found in hw6, this can result in differences.*
@@ -112,27 +114,21 @@ Example Validation loss
   Looking at the learning rate policy code (https://github.com/NVIDIA/OpenSeq2Seq/blob/master/open_seq2seq/optimizers/lr_policies.py) the transformer policy is based on the Adam Optimiser in Section 5.3 of [Attention is All You Need](https://arxiv.org/pdf/1706.03762.pdf). This increases the lr linearly for the warm-up steps and decreasing it thereafter proportionally to the inverse square root of the step number.
 
 * How big was your training set (mb)? How many training lines did it contain?
-The English training set was 637MB and the German training set was 711MB. Both data sets contained 4562102 lines
+*The English training set was 637MB and the German training set was 711MB. Both data sets contained 4562102 lines*
 ![Line Count Training set](/hw9/jpg/Word_count_for_training_dataset.jpg)
-Including the processed files, the training data took 9260MB of memory in total
+*Including the processed files, the training data took 9260MB of memory in total*
 ![Total Memory of Training set](/hw9/jpg/total_memory_for_training_dataset.jpg)
 
 * What are the files that a TF checkpoint is comprised of?
-
+*The TF checkpoint contains the path of the model along with all the previous model paths. Each path contains the metadata, the index of the weights and the losses. The data file contains the tensors and their weights (i.e. the training variables) wheras the meta file contains the protocol buffer which saves the complete Tensorflow graph. The best model also has its own paths, metadata, index and weights.*
+![Model Data Size](/hw9/jpg/model_size_data.jpg)
 
 * How big is your resulting model checkpoint (mb)?
+*From the above, the resulting best_model files are 4344MB in total. There 5 models in total in the best model file, each of which are ~871MB in total with the weights in the data file using most of that memory.*
 
-
-* Remember the definition of a "step". How long did an average step take? *On average each step took 1.7 seconds*
+* Remember the definition of a "step". How long did an average step take? 
+*On average each step took 1.7 seconds. This can be seen in an extract from the nohup.out file*
+![Time to complete step](/hw9/jpg/nohup_log.jpg)
 
 * How does that correlate with the observed network utilization between nodes? *The if the network speed is reduced, the GPU utilisation drops below 100% as the network becomes the bottleneck and the time to complete a step increases. Thus the network speed is inverse to the step time.*
 
-### Tensorboard Screenshots
-Your BLEU TB plot should look something like this:
-![Validation BLEU curve](/hw9/jpg/bleu2.jpg)
-
-Your loss should be something like:
-![Validation loss curve](/hw9/jpg/loss.JPG)
-
-And your learning rate  should be something like:
-![Learning rate curve](/hw9/jpg/lr.JPG)
