@@ -1,7 +1,9 @@
 # Homework 11 -- More fun with OpenAI Gym!
 
-In this homework, you will be training a Lunar Lander to land properly **using your Jetson TX2**. There is a video component to this file, so use a display or VNC.
+In this homework, I trained a Lunar Lander to land properly **using my Jetson TX2**. There is a video component to this file, so use a display or VNC.
 
+
+## Instructions:
 There are two python scripts used for this process. The first file, `lunar_lander.py`, defines the Lunar Lander for OpenAI Gym. It also defines the keras model.
 
 The second file, `run_lunar_lander.py`, instantiates the Lunar Lander environment and runs it.
@@ -65,16 +67,40 @@ You will have a lot of mp4 files in `/data/videos` on your TX2. You can use VLC 
 You should upload three videos showing your best model to Cloud Object Storage and provide links using the instructions below.
 
 Also, submit a write-up of the tweaks you made to the model and the effect they had on the results. 
-Questions to answer:
-What parameters did you change? 
 
-Attempt 1: No Change
-Attempt 2: adam to adamax
-Attempt 3:
-What values did you try?
-Did you try any other changes that made things better or worse?
-Did they improve or degrade the model?
-Based on what you observed, what conclusions can you draw about the different parameters and their values? 
+
+
+## Questions to answer:
+
+### What parameters did you change?
+Change 1: No Change
+The first time I trained the lunar lander I did not change any of the configuration.
+
+Change 2: Adam to Adamax
+The second time I ran the model I changed the optimizer to 'adamax'. [Adam](https://arxiv.org/abs/1412.6980) is an optimisation algorithm that can be used instead of the classical stochastic gradient descent. It utilises first order gradients to estimate the first and second moments to give an adaptive learning rate for different parameters. AdaMax is described in the same paper as a more stable version of Adam based on the infinity norm. The counteracts the instability of Adam for higher order moments. 
+
+
+The code that creates the model in `lunar_lander.py` is:
+
+```
+def nnmodel(input_dim):
+    model = Sequential()
+    model.add(Dense(32, input_dim=input_dim, activation='relu'))
+    model.add(Dense(16, activation='sigmoid'))
+    model.add(Dense(1))
+    model.compile(loss='mean_squared_error', optimizer='adamax', metrics=['accuracy'])
+    return model
+```
+
+Change 3: New CNN
+The third change I made was to 
+
+### What values did you try?
+### Did you try any other changes that made things better or worse?
+### Did they improve or degrade the model?
+### Based on what you observed, what conclusions can you draw about the different parameters and their values? 
+
+
 
 Grading is based on the changes made and the observed output, not on the accuracy of the model.
 
