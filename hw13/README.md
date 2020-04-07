@@ -42,7 +42,7 @@ The results above are better than the reported accuracy by Dusty, especially for
 ```
 python3 train.py --model-dir=plants ~/datasets/PlantCLEF_Subset --epochs 100 --batch-size 64 --resume plants/checkpoint.pth.tar
 ```
-The accuracy of the model at 100 epochs is:
+The accuracy of the model at 100 epochs is 52.2% for the Top 1 prediction and 82.9% for the Top 5:
 ```
  * Acc@1 52.247 Acc@5 82.996
 ```
