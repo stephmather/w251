@@ -38,7 +38,7 @@ Please submit the time it took you to train the model along with the final accur
 ```
 The results above are better than the reported accuracy by Dusty, especially for the top 1. The differences may be an improvment in hardware or algorithms overtime [link](https://github.com/dusty-nv/jetson-inference/blob/master/docs/pytorch-plants.md)
 
-*I then continued to train the model up to 100 epochs, this took another 8*6 hours**. For the remaining epochs I increased the batch size to 64 which used 99% of the GPU. This was possible because the original code was written for the Jetson Nano. The TX2 is more powerful. This was done using the following command:*
+*I then continued to train the model up to 100 epochs, this took another **6 hours**. For the remaining epochs I increased the batch size to 64 which used 99% of the GPU. This was possible because the original code was written for the Jetson Nano. The TX2 is more powerful. This was done using the following command:*
 ```
 python3 train.py --model-dir=plants ~/datasets/PlantCLEF_Subset --epochs 100 --batch-size 64 --resume plants/checkpoint.pth.tar
 ```
