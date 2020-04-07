@@ -29,7 +29,7 @@ if you see the ```ImportError: cannot import name 'PILLOW_VERSION'``` error, dow
 ```
 pip3 install Pillow==6.1%
 ```
-## To submit
+## Submission for Stephanie Mather
 Please submit the time it took you to train the model along with the final accuracy top1/top5 that you were able to achieve. Could you increase the batch size? Why? How long did the training take you? Please save your trained model, we'll use it for the lab.
 
 *The model took **7 hours** to train for the first 35 epochs using the defult batch size of 8. The accuracy at this point was fairly poor at:*
