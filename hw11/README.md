@@ -58,7 +58,7 @@ def nnmodel(input_dim):
     
     
 Results:
-Reviewing the videos again, increasing the neural network slowed the training process to start at 16s and dropping to <1 sec per batch. The original code was <1 sec per batch and the Adamax caused the training to speed up throughout the epoch. At step  50000 the results were:
+Reviewing the videos again, increasing the neural network slowed the training process to start at 16s and dropping to <1 sec per batch. The original code was <1 sec per batch and the Adamax caused the training to speed up throughout the epoch(4s to <1 sec). At step  50000 the results were:
 
 ```
 loss: 70.7458
@@ -67,7 +67,20 @@ total rewards  -152.9185408170793
 Total successes are:  31
 ```
 ### Did you try any other changes that made things better or worse?
-I changed the code to only save the frame output every 10000 steps. I also reduced the time the model to generate a random action candidate via lines 50-60 in `run_lunar_lander.py`:
+I changed the code to only save the frame output every 10000 steps. 
+
+````
+        if steps >= training_thr and steps %10000 == 0: #SM
+            fname = "/tmp/videos/frame"+str(steps)+".mp4"
+            skvideo.io.vwrite(fname, np.array(frames))
+            del frames
+            frames = []
+        if steps >= training_thr and steps %1000 == 0: #SM
+            #clear frames every 1000 steps, only save every 10000
+            del frames
+            frames = []
+```
+I also reduced the time the model to generate a random action candidate via lines 50-60 in `run_lunar_lander.py`:
 
 ```
         if modelTrained:
