@@ -49,7 +49,7 @@ Total successes are:  30
 ```
 
 ### Change 3: New CNN
-The change I made tried to improve the neural network. By increasing complexity, I hoped to have a better accuracy and get the most succesful landings possible. I did not increase the number of layers, instead I increased the size of the layers.
+The last change I made tried to improve the neural network. By increasing complexity, I hoped to have a better accuracy and get the most succesful landings possible. I did not increase the number of layers, instead I increased the size of the layers.
 
 ```
 def nnmodel(input_dim):
@@ -62,7 +62,7 @@ def nnmodel(input_dim):
   ``` 
     
 Results:
-Reviewing the videos again, increasing the neural network size slowed the training process. However, increasing the compexlity of the model successfully increased in the lander's accuracy. At step  50000 the results were:
+Increasing the neural network size slowed the training process. However, increasing the compexlity of the model successfully increased in the lander's accuracy. The lander stayed upright and generally landed between the flags. Erractic movements were not present in the final video. Looking at the videos, the model may still have room for improvement, the lunar_lander often moves slowly, hovering above the surface. This could be considered a waste of fuel in a real life scenario, alothough inifinite fuel was available to the lander, a penalty against the reward was recieve for each thrust. At step  50000 the results were:
 
 Video: https://cos-smather-hw11.s3.au-syd.cloud-object-storage.appdomain.cloud/new_CNN_frame50000.mp4
 
