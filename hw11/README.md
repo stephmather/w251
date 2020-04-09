@@ -1,6 +1,6 @@
 # Homework 11 -- More fun with OpenAI Gym!
 
-In this homework, I trained a Lunar Lander to land properly **using my Jetson TX2**. The instructions can be found [here]<https://github.com/MIDS-scaling-up/v2/tree/master/week11/hw>
+In this homework, I trained a Lunar Lander to land properly **using my Jetson TX2**. The instructions can be found [here](https://github.com/MIDS-scaling-up/v2/tree/master/week11/hw)
 
 There are two python scripts used for this process. The first file, `lunar_lander.py`, defines the Lunar Lander for OpenAI Gym. It also defines the keras model.
 
