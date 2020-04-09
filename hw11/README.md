@@ -11,11 +11,12 @@ The first time I trained the lunar lander I did not change any of the configurat
 
 
 ### Results:
-Viewing the videos the lunar lander moved erractically and was not very successful in making a landing. It had seemed to learn to move slower than the earlier landing attempts, but directionally it was still very inaccurate. At step  50000 the results were
+Viewing the videos the lunar lander moved erractically and was not very successful in making a landing. It had seemed to learn to move slower than the earlier landing attempts, but directionally it was still very inaccurate. t only 14 successful landings I would be hesitant to jump aboard! At step  50000 the results were
 ```
 loss: 137.6245
 reward:  -4.480635533994297
 total rewards  6.384399938092793
+Total successes are:  14
 ```
 
 ### Change 2: Adam to Adamax
@@ -34,20 +35,19 @@ def nnmodel(input_dim):
 ```
 
 Results:
-Looking at the videos the lander was quicker to learn to stabilise itself in an upright position but it was still missing the flags. even in the final round of training (frame50000) it veered completely out of the window of the visualisation. 
+Looking at the videos the lander was quicker to learn to stabilise itself in an upright position but it was still missing the flags. Even in the final round of training (frame50000) it veered completely out of the window of the visualisation. However, the lander did improve the landing frequency by about double. This is as expected from a more suitable lr algorithm.
 
 ```
-loss:  202.9061
+loss:  202.9061 
 reward:  -0.4534947655698862
 total rewards  -111.635338170586
-Total successes are:  79
+Total successes are:  30
 ```
-
-
 
 ### Change 3: New CNN
 The third change I made was to try and improve the neural network. By increasing complexity, I hoped to have a better accuracy and get the most succesful landings possible. I did not increase the number of layers, but I increased the size of the layers.
 
+```
 def nnmodel(input_dim):
     model = Sequential()
     model.add(Dense(512, input_dim=input_dim, activation='relu'))
@@ -55,16 +55,16 @@ def nnmodel(input_dim):
     model.add(Dense(1, activation=linear))
     model.compile(loss='mean_squared_error', optimizer='adamax', metrics=['accuracy'])
     return model
-    
+  ``` 
     
 Results:
-Reviewing the videos again, increasing the neural network slowed the training process to start at 16s and dropping to <1 sec per batch. The original code was <1 sec per batch and the Adamax caused the training to speed up throughout the epoch(4s to <1 sec). At step  50000 the results were:
+Reviewing the videos again, increasing the neural network slowed the training process to start at 16s and dropping to <1 sec per batch. The original code was <1 sec per batch and the Adamax caused the training to speed up throughout the epoch(4s to <1 sec). However, increasing the complity of the model resulted in a successful increase in accuracy. At step  50000 the results were:
 
 ```
 loss: 70.7458
 reward:  0.261677597783722
 total rewards  -152.9185408170793
-Total successes are:  31
+Total successes are:  74
 ```
 ### Did you try any other changes that made things better or worse?
 I changed the code to only save the frame output every 10000 steps. 
@@ -103,7 +103,7 @@ I also reduced the time the model to generate a random action candidate via line
             max_idx = np.argmax(r_pred)
             a = a_candidates[max_idx]
 ```
-
+I also discovered there was enough room on the GPU to run two models training at the same time. I made modifications so that they were saving the videos in different locations.
 ### Did they improve or degrade the model?
 Both of these changes increased the speed at which the model trained but do not affect the accuracy.
 
