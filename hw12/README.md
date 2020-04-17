@@ -8,6 +8,10 @@ These instructions are a subset of the official instructions linked to from here
 We will install GPFS FPO with no replication (replication=1) and local write affinity.  This means that if you are on one of the nodes and are writing a file in GPFS, the file will end up on your local node unless your local node is out of space.
 
 A. __Get three virtual servers provisioned__, 2 vCPUs, 4G RAM, CENTOS_7_64, __two local disks__ 25G and 100G each, in any datacenter. __Make sure__ you attach a keypair.  Pick intuitive names such as gpfs1, gpfs2, gpfs3.  Note their internal (10.x.x.x) ip addresses.
+*Done, see example code:*
+```
+ibmcloud sl vs create --datacenter=syd01 --hostname=gpfs1 --domain=stephmather.com --billing=hourly --network 1000 --key=xxxxxx -c 2 -m 4096 --disk 25 --disk 100 -o CENTOS_7_64
+```
 
 B. __Set up each one of your nodes as follows:__
 
@@ -19,18 +23,21 @@ Make sure the nodes can talk to each other without a password.  When you created
 
     chmod 600 /root/.ssh/id_rsa
 
-Set up the hosts file (/etc/hosts) for your cluster by adding the __PRIVATE__ IP addresses you noted earlier and names for each node in the cluster.  __Also__ you should remove the entry containing the fully qualified node name for your headnode / gpfs1.sftlyr.ws (otherwise it will trip up some of the GPFS tools since it likely does not resolve). For instance, your hosts file might look like this:
-
-    127.0.0.1 		localhost.localdomain localhost
-    10.122.6.68		gpfs1
-    10.122.6.70		gpfs2
-    10.122.6.71		gpfs3
-
+Set up the hosts file (/etc/hosts) for your cluster by adding the __PRIVATE__ IP addresses you noted earlier and names for each node in the cluster.  __Also__ you should remove the entry containing the fully qualified node name for your headnode / gpfs1.sftlyr.ws (otherwise it will trip up some of the GPFS tools since it likely does not resolve). 
+*Hosts file:*
+```
+cat > /etc/hosts
+127.0.0.1 		localhost.localdomain localhost
+10.138.179.16		gpfs1
+10.138.179.26		gpfs2
+10.138.179.30		gpfs3
+```
 Create a nodefile.  Edit /root/nodefile and add the names of your nodes.  This is a very simple example with just one quorum node:
 
     gpfs1:quorum:
     gpfs2::
     gpfs3::
+
 
 C. __Install and configure GPFS FPO on each node:__
 Install pre-requisites
@@ -42,7 +49,15 @@ yum update
 reboot
 #install more pre-reqs
 yum install -y ksh perl libaio m4 net-tools
+```
 
+*Note, after reboot, the etc/hosts file must be modified again as it resets on restart: *
+```
+cat > /etc/hosts
+127.0.0.1 		localhost.localdomain localhost
+10.138.179.16		gpfs1
+10.138.179.26		gpfs2
+10.138.179.30		gpfs3
 ```
 Then install S3 API client and GPFS with:
 
@@ -70,8 +85,7 @@ chmod +x Spectrum_Scale_Advanced-5.0.3.2-x86_64-Linux-install
 /usr/lpp/mmfs/5.0.3.2/installer/spectrumscale node add gpfs3  (this command needs to be run just gpfs1)
 
 ```
-
-
+*Note: Orginially thie above steps would not execute and I realised I needed to create an ssh-key that did not require a password to unlock. I destroyed and rebuilt my cluster with a different ssh key. I then had no issues creating the cluster.*
 D. __Create the cluster.  Do these steps only on one node (gpfs1 in my example).__
 ```
 /usr/lpp/mmfs/5.0.3.2/installer/spectrumscale setup -s IP-OF-GPFS1  (this command needs to be run just gpfs1)
@@ -90,9 +104,15 @@ Now, start GPFS:
     mmstartup -a (this command needs to be run just gpfs1)
 
 All nodes should be up ("GPFS state" column shows "active"):
-
+*Confirmed cluster state was active and nodes could communicate:*
     mmgetstate -a (this command needs to be run just gpfs1)
-
+```
+ Node number  Node name        GPFS state
+-------------------------------------------
+       1      gpfs1            active
+       2      gpfs2            active
+       3      gpfs3            active
+```
 Nodes may reflect "arbitrating" state briefly before "active".  If one or more nodes are down, you will need to go back and see what you might have missed. If some node shows a DOWN state, log into the node and run the command  mmstartup. The main GPFS log file is `/var/adm/ras/mmfs.log.latest`; look for errors there.
 
 You could get more details on your cluster:
@@ -103,12 +123,13 @@ Now we need to define our disks. Do this to print the paths and sizes of disks o
 
     fdisk -l (this command and the rest until the file creation command (touch aa) needs to be run just gpfs1)
 
-Note the names of your 100G disks. Here's what I see:
+*Noted the names of my 100G disks:*
 
-    [root@gpfs1 ras]# fdisk -l |grep Disk |grep bytes
-    Disk /dev/xvdc: 100 GiB, 107374182400 bytes, 209715200 sectors
-    Disk /dev/xvdb: 2 GiB, 2147483648 bytes, 4194304 sectors
-    Disk /dev/xvda: 25 GiB, 26843701248 bytes, 52429104 sectors
+```Disk /dev/xvdh: 67 MB, 67125248 bytes, 131104 sectors
+Disk /dev/xvda: 26.8 GB, 26843545600 bytes, 52428800 sectors
+Disk /dev/xvdc: 107.4 GB, 107374182400 bytes, 209715200 sectors
+Disk /dev/xvdb: 2147 MB, 2147483648 bytes, 4194304 sectors
+```
 
 Now inspect the mount location of the root filesystem on your boxes:
 
@@ -146,19 +167,91 @@ Disk /dev/xvda (partition 2) is where my operating system is installed, so I'm g
 Now run:
 
     mmcrnsd -F /root/diskfile.fpo
-
+    
 You should see your disks now:
 
     mmlsnsd -m
-
+```
+[root@gpfs1 ~]# mmcrnsd -F /root/diskfile.fpo
+mmcrnsd: Processing disk xvdc
+mmcrnsd: Processing disk xvdc
+mmcrnsd: Processing disk xvdc
+mmcrnsd: Propagating the cluster configuration data to all
+  affected nodes.  This is an asynchronous process.
+  ```
 Let’s create the file system.  We are using the replication factor 1 for the data:
 
     mmcrfs gpfsfpo -F /root/diskfile.fpo -A yes -Q no -r 1 -R 1
+*Output:*
+```
+The following disks of gpfsfpo will be formatted on node gpfs3.stephmather.com:
+    gpfs1nsd: size 102400 MB
+    gpfs2nsd: size 102400 MB
+    gpfs3nsd: size 102400 MB
+Formatting file system ...
+Disks up to size 895.99 GB can be added to storage pool system.
+Creating Inode File
+Creating Allocation Maps
+Creating Log Files
+Clearing Inode Allocation Map
+Clearing Block Allocation Map
+Formatting Allocation Map for storage pool system
+Completed creation of file system /dev/gpfsfpo.
+mmcrfs: Propagating the cluster configuration data to all affected nodes.  This is an asynchronous process
+```
 
 Let’s check that the file system is created:
 
     mmlsfs all
+*Output*
+```
 
+File system attributes for /dev/gpfsfpo:
+========================================
+flag                value                    description
+------------------- ------------------------ -----------------------------------
+ -f                 8192                     Minimum fragment (subblock) size in bytes
+ -i                 4096                     Inode size in bytes
+ -I                 32768                    Indirect block size in bytes
+ -m                 1                        Default number of metadata replicas
+ -M                 2                        Maximum number of metadata replicas
+ -r                 1                        Default number of data replicas
+ -R                 1                        Maximum number of data replicas
+ -j                 cluster                  Block allocation type
+ -D                 nfs4                     File locking semantics in effect
+ -k                 nfs4                     ACL semantics in effect
+ -n                 32                       Estimated number of nodes that will mount file system
+ -B                 4194304                  Block size
+ -Q                 none                     Quotas accounting enabled
+                    none                     Quotas enforced
+                    none                     Default quotas enabled
+ --perfileset-quota No                       Per-fileset quota enforcement
+ --filesetdf        No                       Fileset df enabled?
+ -V                 21.00 (5.0.3.0)          File system version
+ --create-time      Mon Apr 13 00:16:44 2020 File system creation time
+ -z                 No                       Is DMAPI enabled?
+ -L                 33554432                 Logfile size
+ -E                 Yes                      Exact mtime mount option
+ -S                 relatime                 Suppress atime mount option
+ -K                 whenpossible             Strict replica allocation option
+ --fastea           Yes                      Fast external attributes enabled?
+ --encryption       No                       Encryption enabled?
+ --inode-limit      310272                   Maximum number of inodes
+ --log-replicas     0                        Number of log replicas
+ --is4KAligned      Yes                      is4KAligned?
+ --rapid-repair     Yes                      rapidRepair enabled?
+ --write-cache-threshold 0                   HAWC Threshold (max 65536)
+ --subblocks-per-full-block 512              Number of subblocks per full block
+ -P                 system                   Disk storage pools in file system
+ --file-audit-log   No                       File Audit Logging enabled?
+ --maintenance-mode No                       Maintenance Mode enabled?
+ -d                 gpfs1nsd;gpfs2nsd;gpfs3nsd  Disks in file system
+ -A                 yes                      Automatic mount option
+ -o                 none                     Additional mount options
+ -T                 /gpfs/gpfsfpo            Default mount point
+ --mount-priority   0                        Mount priority
+ ```
+ 
 Mounting the distributed FS (be sure to pass -a so that the filesystem is mounted on all nodes):
 
     mmmount all -a
@@ -169,12 +262,13 @@ All done.  Now you should be able to go to the mounted FS:
 
 .. and see that there's 300 G there:
 
-    [root@gpfs1 gpfsfpo]# df -h .
-    Filesystem      Size  Used Avail Use% Mounted on
-    /dev/gpfsfpo     300G  678M   300G   1% /gpfs/gpfsfpo
+```
+Filesystem      Size  Used Avail Use% Mounted on
+gpfsfpo         300G  2.6G  298G   1% /gpfs/gpfsfpo
+```
 
 Make sure you can write, e.g.
-
+*confirmed*
     touch aa
 
 If the file was created, you are all set:
