@@ -348,9 +348,47 @@ Maximum number of inodes:     15728640
 
 ### To Turn In
 1. How much disk space is used after step 4?
+Note: I struggled to get the reddit dataset to completely download. It seemed my reddit crawler was crashing after an unknown period of time. I attempted the download 5+ times and the amount of files downloaded differed each time.
+```
+[root@gpfs2 gpfsfpo]# df -h
+Filesystem      Size  Used Avail Use% Mounted on
+devtmpfs        1.9G     0  1.9G   0% /dev
+tmpfs           1.9G     0  1.9G   0% /dev/shm
+tmpfs           1.9G  185M  1.7G  10% /run
+tmpfs           1.9G     0  1.9G   0% /sys/fs/cgroup
+/dev/xvda2       24G  6.5G   16G  29% /
+/dev/xvda1      976M  178M  748M  20% /boot
+gpfsfpo         300G   14G  287G   5% /gpfs/gpfsfpo
+tmpfs           379M     0  379M   0% /run/user/0
+
+```
+
+
 2. Did you parallelize the crawlers in step 4? If so, how? 
+Yes, I split the lists of urls into 4 batches which I could run on each VSI using a bash script to run parallel copies of reddit_crawler.py for each url list. I attempted to run 50 crawlers in parallel using run_reddit_crawler_3.sh and did not hit CPU or memory bottlenecks. However, I may have encounterd some overload issues as the crawlers seemed to stop after a few hours and seemly did not download all the files. 
+The crawler came across many errors when attempting to download pages, the most frequent being 403 and 404 errors.
+
+
+```
+Error 403 for http://www.10zenmonkeys.com/2007/02/05/7-things-i-learned-from-superbowl-ads/
+Error 403 for http://www.10zenmonkeys.com/2007/02/05/a-reprint-of-an-interview-with-keith-henson-by-ru-sirius-2/
+URLError for http://www.illinoiswaters.net/heartland/phpBB2/viewtopic.php?p=45454#45454
+Error 404 for http://break.com/index/goldenapple.html
+Empty http://www.theseminal.com/2008/01/02/immigration-is-the-free-market-at-work/
+```
+
+Out of the 4 pages above, the first 2 can be accessed via the url in my browser, the next three cannot as they no longer exist. The first two are 403 errors which suggests the server is blocking my crawler.
+
 3. Describe the steps to de-duplicate the web pages you crawled.
+
+I was unable to gather all the text files so there was no need to deduplicate them. However, the first line of each text file that did successfully saved was the url of the file, so I would have checked that a file was deleted if the same url encountered in the dataset compared to a previous file. The crawler.py also contains the function filter_files() which only include files that have less than threshold n-gram overlapping with the current dataset. Filtering in this way would be very useful when creating the nlp data set as it would also catch duplicate content on different urls.
+
 4. Submit the list of files you that your LazyNLP spiders crawled (ls -la).
+see attached.
+
+The number of urls in the reddit data set was
+
+The number of download files (i.e. successful urls) was
 
 
 Credit / No-credit only.  
