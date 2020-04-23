@@ -387,8 +387,18 @@ I was unable to gather all the text files so there was no need to deduplicate th
 see attached.
 
 The number of urls in the reddit data set was
+23,143,475
 
 The number of download files (i.e. successful urls) was
+229061 + 111921 + 29537 + 60353 = 430872
+This means less that 2% of the urls successfully downloaded for the reddit_dataset.
+
+### File lists: 
+small (Gutenberg AUS) aus_gut_dataset.txt
+medium (Gutenberg US) gutemberg_dataset_.txt
+large (Reddit) reddit_dataset.txt
+
+
 
 
 Credit / No-credit only.  
